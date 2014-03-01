@@ -27,6 +27,8 @@ public class EntryParser implements Runnable{
 	}
 	
 	public void run() {
+		log.info("Started parsing.");
+		
 		contents.put("title", entry.getTitle());
 		contents.put("hash", Integer.toString(entry.hashCode()));
 		contents.put("time", Long.toString(entry.getPublishedDate().getTime()));
