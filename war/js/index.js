@@ -28,12 +28,14 @@ var ryuichiokubo_simpretty = function() {
     feeds.forEach(function(feed) {
       var node = el.article.cloneNode();
       var header = node.firstElementChild;
-      header.textContent = feed.title;
+      var a = header.firstElementChild;
+      a.textContent = feed.title;
+      a.href = feed.link;
       header.style.fontSize = getFontSize(feed);
       el.main.appendChild(node);
     });
 
-    // remove template node
+    // Remove template node
     el.main.removeChild(el.article);
   }
 
