@@ -2,6 +2,7 @@ var ryuichiokubo_simpretty = function() {
 
   const URL_FEED = 'http://localhost:8888/simpretty';
 
+  // HTML elements
   var el = (function() {
     var main = document.getElementById('main');
     var article = document.getElementsByTagName('article')[0];
@@ -13,10 +14,22 @@ var ryuichiokubo_simpretty = function() {
   })();
 
   var renderFeed = function(data) {
+
+    // Larger fonts for more comments
+    var getFontSize = function(feed) {
+      var size = 1;
+      var unit = 'rem';
+      var extra = feed.comment * 0.1;
+      return size + extra + unit;
+    }
+
+    // Append feeds which are sent from server as sorted list
     feeds = JSON.parse(data);
     feeds.forEach(function(feed) {
       var node = el.article.cloneNode();
-      node.firstElementChild.textContent = feed.title;
+      var header = node.firstElementChild;
+      header.textContent = feed.title;
+      header.style.fontSize = getFontSize(feed);
       el.main.appendChild(node);
     });
 
