@@ -24,19 +24,22 @@ public class EntryParser {
 		
 		contents.put("title", entry.getTitle());
 		// contents.put("hash", Integer.toString(entry.hashCode())); // hashCode will be different when server restarts
-		contents.put("time", Long.toString(entry.getPublishedDate().getTime()));
+		if (entry.getPublishedDate() != null) {
+			contents.put("time", Long.toString(entry.getPublishedDate().getTime()));
+		}
 		contents.put("link", entry.getLink());
 
 		// Get number of comments (XXX particular to teamtreehouse or feedburner?)
 		@SuppressWarnings("unchecked")
 		List<Element> foreignMarkups = (List<Element>) entry.getForeignMarkup();
 		for (Element foreignMarkup : foreignMarkups) {
-			if (foreignMarkup.getName() == "comments") {
-				contents.put("comment", foreignMarkup.getText());
-			}
 			//log.info("name:" + foreignMarkup.getName());
 			//log.info("namespace:" + foreignMarkup.getNamespace());
 			//log.info("text:" + foreignMarkup.getText());
+
+			if (foreignMarkup.getName() == "comments") {
+				contents.put("comment", foreignMarkup.getText());
+			}
 		}
 	}
 	

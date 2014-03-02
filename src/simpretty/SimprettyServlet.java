@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -22,6 +24,12 @@ import com.sun.syndication.io.XmlReader;
 public class SimprettyServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(SimprettyServlet.class.getName());
 	private static final int CON_TIMEOUT = 30 * 1000;
+	private static final String[] SOURCES = {
+		"http://feeds.feedburner.com/teamtreehouse",
+		"http://feeds2.feedburner.com/html5doctor",
+		"http://feeds.feedburner.com/CssTricks",
+		"http://www.sitepoint.com/feed/"
+	};
 	
 	private SyndFeed getFeedFromUrl(String urlStr) throws IOException {
 		log.info("Loading: " + urlStr);
@@ -66,11 +74,34 @@ public class SimprettyServlet extends HttpServlet {
 		resp.getWriter().write(json);
 	}
 	
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException, ServletException {
+	private void sortArticles(List<HashMap<String, String>>articles) {
+		Collections.sort(articles, new Comparator<HashMap<String, String>>() {
+			public int compare(HashMap<String, String> article1, HashMap<String, String> article2) {
+				int res = 0;
+				if (article1.get("time") != null && article2.get("time") != null) {
+					long time1 = Long.parseLong(article1.get("time"));
+					long time2 = Long.parseLong(article2.get("time"));
+					if (time1 < time2) {
+						res = 1;
+					} else if (time1 > time2) {
+						res = -1;
+					}
+				}
+				return res;
+			}
+		});
+	}
+	
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+		List<HashMap<String, String>> articles = new ArrayList<HashMap<String, String>>();
+		SyndFeed feed;
 		
-		SyndFeed feed = getFeedFromUrl("http://feeds.feedburner.com/teamtreehouse");
-		List<HashMap<String, String>> articles = parseFeed(feed);	
+		for (String url : SOURCES) {
+			feed = getFeedFromUrl(url); // XXX parallel
+			articles.addAll(parseFeed(feed));
+		}
+		
+		sortArticles(articles);
 		sendResponse(articles, resp);
 	}
 }
