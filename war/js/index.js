@@ -1,6 +1,7 @@
 var ryuichiokubo_simpretty = function() {
 
-  const URL_FEED = 'http://localhost:8888/simpretty';
+  //const URL_FEED = 'http://localhost:8888/simpretty';
+  const URL_FEED = 'http://simpretty-rss.appspot.com/simpretty';
 
   // HTML elements
   var el = (function() {
