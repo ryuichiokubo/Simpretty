@@ -1,60 +1,67 @@
-var ryuichiokubo_simpretty = function() {
+/*jslint browser:true */
 
-  //const URL_FEED = 'http://localhost:8888/simpretty';
-  const URL_FEED = 'http://simpretty-rss.appspot.com/simpretty';
+(function () {
+    "use strict";
+  
+    var ryuichiokubo_simpretty = function () {
 
-  // HTML elements
-  var el = (function() {
-    var main = document.getElementById('main');
-    var article = document.getElementsByTagName('article')[0];
+        var URL_FEED = 'http://localhost:8888/simpretty',
+        //var URL_FEED = 'http://simpretty-rss.appspot.com/simpretty';
 
-    return {
-      main: main,
-      article: article
-    }
-  })();
+            // HTML elements
+            el = (function () {
+                var main = document.getElementById('main'),
+                    article = document.getElementsByTagName('article')[0];
 
-  var renderFeed = function(data) {
+                return {
+                    main: main,
+                    article: article
+                };
+            }()),
 
-    // Larger fonts for more comments
-    var getFontSize = function(feed) {
-      var size = 1;
-      var unit = 'rem';
-      var extra = feed.comment * 0.1;
-      return size + extra + unit;
-    }
+            renderFeed = function (data) {
 
-    // Append feeds which are sent from server as sorted list
-    feeds = JSON.parse(data);
-    feeds.forEach(function(feed) {
-      var node = el.article.cloneNode();
-      var header = node.firstElementChild;
-      var a = header.firstElementChild;
-      a.textContent = feed.title;
-      a.href = feed.link;
-      header.style.fontSize = getFontSize(feed);
-      el.main.appendChild(node);
-    });
+                // Larger fonts for more comments
+                var getFontSize = function (feed) {
+                    var size = 1,
+                        unit = 'rem',
+                        extra = feed.comment * 0.1;
+                    return size + extra + unit;
+                },
 
-    // Remove template node
-    el.main.removeChild(el.article);
-  }
+                    // Append feeds which are sent from server as sorted list
+                    feeds = JSON.parse(data);
+              
+                feeds.forEach(function (feed) {
+                    var node = el.article.cloneNode(),
+                        header = node.firstElementChild,
+                        a = header.firstElementChild;
+                    a.textContent = feed.title;
+                    a.href = feed.link;
+                    header.style.fontSize = getFontSize(feed);
+                    el.main.appendChild(node);
+                });
 
-  var getFeed = function() {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function() {
-      var data = xhr.responseText;
-      renderFeed(data);
-    }
-    xhr.open('GET', URL_FEED);
-    xhr.send();
-  }
+                // Remove template node
+                el.main.removeChild(el.article);
+            },
+
+            getFeed = function () {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    var data = xhr.responseText;
+                    renderFeed(data);
+                };
+                xhr.open('GET', URL_FEED);
+                xhr.send();
+            };
 
 
-  // 1. (TODO) Load contents from local storage
-  // 2. Get contents from server
+        // 1. (TODO) Load contents from local storage
+        // 2. Get contents from server
 
-  getFeed();
-}
+        getFeed();
+    };
 
-document.addEventListener( "DOMContentLoaded", ryuichiokubo_simpretty, false );
+    document.addEventListener("DOMContentLoaded", ryuichiokubo_simpretty, false);
+}());
