@@ -9,10 +9,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.concurrent.ThreadFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
+import com.google.appengine.api.ThreadManager;
 import com.google.gson.Gson;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -23,7 +25,7 @@ import com.sun.syndication.io.XmlReader;
 @SuppressWarnings("serial")
 public class SimprettyServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(SimprettyServlet.class.getName());
-	private static final int CON_TIMEOUT = 30 * 1000;
+	private static final int CON_TIMEOUT = 10 * 1000;
 	private static final String[] SOURCES = {
 		"http://feeds.feedburner.com/teamtreehouse",
 		"http://feeds2.feedburner.com/html5doctor",
@@ -31,25 +33,40 @@ public class SimprettyServlet extends HttpServlet {
 		"http://www.sitepoint.com/feed/"
 	};
 	
-	private SyndFeed getFeedFromUrl(String urlStr) throws IOException {
-		log.info("Loading: " + urlStr);
+	private final class FeedGetter implements Runnable {
 		
-		URL url = new URL(urlStr);
-		URLConnection conn = url.openConnection();
-		conn.setConnectTimeout(CON_TIMEOUT);
+		private final String url;
+		private SyndFeed feed;
 		
-		SyndFeedInput input = new SyndFeedInput();
-		SyndFeed feed = null;
-		try {
-			feed = input.build(new XmlReader(conn));
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FeedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		return feed;
+		public FeedGetter(String url) {
+			this.url = url;
+		}
+		
+		public void run() {
+			log.info("Loading: " + url);
+			
+			try {
+				
+				URL resource = new URL(url);
+				URLConnection conn = resource.openConnection();
+				conn.setConnectTimeout(CON_TIMEOUT);
+				SyndFeedInput input = new SyndFeedInput();
+				feed = input.build(new XmlReader(conn));
+				
+			} catch (FeedException e) {
+				// TODO Auto-generated catch block
+				log.warning(e.toString());
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				log.warning(e.toString());
+				e.printStackTrace();
+			}	
+		}
+
+		public SyndFeed getFeed() {
+			return feed;
+		}
 	}
 	
 	private List<HashMap<String, String>> parseFeed(SyndFeed feed) {
@@ -93,11 +110,33 @@ public class SimprettyServlet extends HttpServlet {
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		List<HashMap<String, String>> articles = new ArrayList<HashMap<String, String>>();
-		SyndFeed feed;
+		List<HashMap<String, String>> articles = new ArrayList<>();
+		ThreadFactory threadFactory = ThreadManager.currentRequestThreadFactory();
+		ArrayList<Thread> threads = new ArrayList<>();
+		ArrayList<FeedGetter> getters = new ArrayList<>();
 		
+		// Fetch feeds in multiple threads
 		for (String url : SOURCES) {
-			feed = getFeedFromUrl(url); // XXX parallel
+			FeedGetter getter = new FeedGetter(url);
+			Thread thread = threadFactory.newThread(getter);
+			threads.add(thread);
+			getters.add(getter);
+			thread.start();
+		}
+
+		// Wait for all threads to complete
+		for (Thread thread : threads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		// Parse and concatenate all feeds
+		for (FeedGetter getter : getters) {
+			SyndFeed feed = getter.getFeed();
 			articles.addAll(parseFeed(feed));
 		}
 		
