@@ -16,26 +16,28 @@ public class FeedFetcher implements Runnable {
 	private static final int CON_TIMEOUT = 10 * 1000;
 	
 	private final String url;
-	private SyndFeed feed;
+	private final FeedManager manager;
 	
-	public FeedFetcher(String url) {
+	public FeedFetcher(String url, FeedManager manager) {
 		this.url = url;
+		this.manager = manager;
 	}
 
 	@Override
 	public void run() {
-		fetch();
+		SyndFeed feed = fetch();
+		if (feed != null) {
+			log.info("Loaded: " + feed.getTitle());
+			manager.addFeed(feed);
+		}
 	}
 
-	public SyndFeed getFeed() {
-		return feed;
-	}
+	private SyndFeed fetch() {
+		SyndFeed feed = null;
 
-	private void fetch() {
 		log.info("Loading: " + url);
 		
-		try {
-			
+		try {	
 			URL resource = new URL(url);
 			URLConnection conn = resource.openConnection();
 			conn.setConnectTimeout(CON_TIMEOUT);
@@ -52,7 +54,7 @@ public class FeedFetcher implements Runnable {
 			e.printStackTrace();
 		}	
 		
-		log.info("Loaded: " + feed.getTitle());
+		return feed;
 	}
 
 }

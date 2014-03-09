@@ -16,36 +16,35 @@ public class FeedManager {
 
 	private final String[] urls;
 	private List<HashMap<String, String>> articles = new ArrayList<>();
-	private List<FeedFetcher> fetchers = new ArrayList<>();
+	private List<SyndFeed> feeds = new ArrayList<>();
 
 	public FeedManager(String[] urls) {
 		this.urls = urls;
-		fetchAll();
 	}
 
-	private List<HashMap<String, String>> parseFeed(SyndFeed feed) {
-		List<HashMap<String, String>> articles 	= new ArrayList<HashMap<String, String>>();
-		
-		for (Object obj : feed.getEntries()) {
-			SyndEntry entry = (SyndEntry) obj;
-			EntryParser parser = new EntryParser(entry);
-			parser.parse();
-			articles.add(parser.getContents());
+	public List<HashMap<String, String>> asList() {
+		if (feeds.isEmpty()) {
+			fetchAll();
 		}
-		
+		if (articles.isEmpty()) {
+			parse();
+		}
 		return articles;
 	}
+
+	public synchronized void addFeed(SyndFeed feed) {
+		feeds.add(feed);
+	}
 	
-	private void fetchAll() {
+	public void fetchAll() {
 		ThreadFactory threadFactory = ThreadManager.currentRequestThreadFactory();
 		ArrayList<Thread> threads = new ArrayList<>();
 		
 		// Fetch feeds in multiple threads
 		for (String url : urls) {
-			FeedFetcher fetcher = new FeedFetcher(url);
+			FeedFetcher fetcher = new FeedFetcher(url, this);
 			Thread thread = threadFactory.newThread(fetcher);
 			threads.add(thread);
-			fetchers.add(fetcher);
 			thread.start();
 		}
 
@@ -60,12 +59,22 @@ public class FeedManager {
 		}
 	}
 	
-	public List<HashMap<String, String>> asList() {
-		for (FeedFetcher fetcher : fetchers) {
-			SyndFeed feed = fetcher.getFeed();
+	public void parse() {
+		for (SyndFeed feed : feeds) {
 			articles.addAll(parseFeed(feed));
 		}
-
-		return articles;
 	}
+	
+	private List<HashMap<String, String>> parseFeed(SyndFeed feed) {
+		List<HashMap<String, String>> contents 	= new ArrayList<HashMap<String, String>>();
+		
+		for (Object obj : feed.getEntries()) {
+			SyndEntry entry = (SyndEntry) obj;
+			EntryParser parser = new EntryParser(entry);
+			parser.parse();
+			contents.add(parser.getContents());
+		}
+		
+		return contents;
+	}	
 }
