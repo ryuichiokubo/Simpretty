@@ -6,7 +6,7 @@
 
     var ryuichiokubo_simpretty = function () {
 
-        //var URL_FEED = 'http://simpretty-rss.appspot.com/simpretty';
+        //var URL_FEED = 'http://simpretty-rss.appspot.com/simpretty',
         var URL_FEED = 'http://localhost:8888/simpretty',
             el = {},
             tmpl = {},
@@ -35,7 +35,7 @@
             var getFontSize = function (feed) {
                 var size = 1,
                     unit = 'rem',
-                    extra = feed.comment * 0.1;
+                    extra = Math.log(feed.comment);
                 return size + extra + unit;
             },
 
