@@ -15,20 +15,30 @@ public class FeedManager {
 	private static final Logger log = Logger.getLogger(FeedManager.class.getName());
 
 	private final String[] urls;
+	private final FeedDatabase db;
+
 	private List<HashMap<String, String>> articles = new ArrayList<>();
 	private List<SyndFeed> feeds = new ArrayList<>();
 
 	public FeedManager(String[] urls) {
 		this.urls = urls;
+		this.db = new FeedDatabase();
 	}
 
+	public void save() {
+		db.save(articles);
+	}
+	
 	public List<HashMap<String, String>> asList() {
+		 // XXX or fetch as another method to be called from caller
 		if (feeds.isEmpty()) {
 			fetchAll();
 		}
 		if (articles.isEmpty()) {
 			parse();
 		}
+		save();
+		
 		return articles;
 	}
 
