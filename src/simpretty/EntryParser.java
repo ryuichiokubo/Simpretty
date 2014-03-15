@@ -19,12 +19,20 @@ public class EntryParser {
 		this.entry = entry;
 	}
 	
+	/* 
+	 * contents:
+	 * 	- title
+	 * 	- uri
+	 * 	- time
+	 * 	- link
+	 * 	- comment
+	 */
 	public void parse() {
 		log.info("Started parsing.");
 		//log.info(entry.toString());
 		
 		contents.put("title", entry.getTitle());
-		// contents.put("hash", Integer.toString(entry.hashCode())); // hashCode will be different when server restarts
+		contents.put("uri", entry.getUri());
 		if (entry.getPublishedDate() != null) {
 			contents.put("time", Long.toString(entry.getPublishedDate().getTime()));
 		}
