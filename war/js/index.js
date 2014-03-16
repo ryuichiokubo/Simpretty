@@ -6,12 +6,16 @@
 
     var ryuichiokubo_simpretty = function () {
 
-        //var URL_FEED = 'http://simpretty-rss.appspot.com/simpretty',
-        var URL_FEED = 'http://localhost:8888/simpretty',
+        //var HOST = 'http://simpretty-rss.appspot.com',
+        var HOST = 'http://localhost:8888',
+            URL_FEED = HOST + '/feed',
+            URL_SCORE = HOST + '/score',
             el = {},
             tmpl = {},
             renderFeed,
-            getFeed;
+            getFeed,
+            getAjax,
+            getScore;
 
         // HTML elements
         el = (function () {
@@ -57,21 +61,30 @@
             });
         };
 
-        getFeed = function () {
+        getAjax = function (url, cb) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
                 var data = xhr.responseText;
-                renderFeed(data);
+                cb(data);
             };
-            xhr.open('GET', URL_FEED);
+            xhr.open('GET', url);
             xhr.send();
         };
 
+        getFeed = function () {
+            getAjax(URL_FEED, renderFeed)
+        };
+
+        getScore = function () {
+            getAjax(URL_SCORE, console.log)
+        };
 
         // 1. (TODO) Load contents from local storage
         // 2. Get contents from server
-
         getFeed();
+
+        // XXX UI
+        getScore();
     };
 
     document.addEventListener("DOMContentLoaded", ryuichiokubo_simpretty, false);

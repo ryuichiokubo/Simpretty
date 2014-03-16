@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -15,15 +13,9 @@ import javax.servlet.http.*;
 
 import com.google.gson.Gson;
 
-public class SimprettyServlet extends HttpServlet {
+public class FeedServlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger(SimprettyServlet.class.getName());
-	private static final String[] SOURCES = {
-		"http://feeds.feedburner.com/teamtreehouse",
-		"http://feeds2.feedburner.com/html5doctor",
-		"http://feeds.feedburner.com/CssTricks",
-		"http://www.sitepoint.com/feed/"
-	};
+	private static final Logger log = Logger.getLogger(FeedServlet.class.getName());
 	
 	private void sendResponse(List<Map<String, String>>articles, HttpServletResponse resp) throws IOException {		
 		Gson gson = new Gson();
@@ -54,15 +46,11 @@ public class SimprettyServlet extends HttpServlet {
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		List<Map<String, String>> articles = new ArrayList<>();
-		FeedManager manager = new FeedManager(SOURCES);
+		FeedManager manager = new FeedManager();
 
 		articles = manager.asList();
 		sortArticles(articles);
-		
-		// XXX move to another place
-		Set<Score> score = manager.getScore();
-		log.info("@@@ score: " + score);
-		
+
 		sendResponse(articles, resp);
 	}
 }

@@ -19,14 +19,26 @@ public class FeedManager {
 	private final String[] urls;
 	private final FeedDatabase db;
 
+	private static final String[] SOURCES = {
+		"http://feeds.feedburner.com/teamtreehouse",
+		"http://feeds2.feedburner.com/html5doctor",
+		"http://feeds.feedburner.com/CssTricks",
+		"http://www.sitepoint.com/feed/"
+	};
+
 	private List<Map<String, String>> articles = new ArrayList<>();
 	private List<SyndFeed> feeds = new ArrayList<>();
 
-	public FeedManager(String[] urls) {
-		this.urls = urls;
+	public FeedManager() {
+		this.urls = SOURCES;
 		this.db = new FeedDatabase();
 	}
 
+	public void fetch() {
+		fetchAll();
+		parse();
+	}
+	
 	public void save() {
 		db.save(articles);
 	}

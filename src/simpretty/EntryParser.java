@@ -11,7 +11,7 @@ import com.sun.syndication.feed.synd.SyndEntry;
 
 public class EntryParser {
 
-	private static final Logger log = Logger.getLogger(SimprettyServlet.class.getName());
+	private static final Logger log = Logger.getLogger(EntryParser.class.getName());
 
 	private SyndEntry entry;
 	private Map<String, String> contents = new HashMap<String, String>();
