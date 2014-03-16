@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -14,7 +15,6 @@ import javax.servlet.http.*;
 
 import com.google.gson.Gson;
 
-@SuppressWarnings("serial")
 public class SimprettyServlet extends HttpServlet {
 
 	private static final Logger log = Logger.getLogger(SimprettyServlet.class.getName());
@@ -60,7 +60,7 @@ public class SimprettyServlet extends HttpServlet {
 		sortArticles(articles);
 		
 		// XXX move to another place
-		Map<String, Long> score = manager.getScore();
+		Set<Score> score = manager.getScore();
 		log.info("@@@ score: " + score);
 		
 		sendResponse(articles, resp);

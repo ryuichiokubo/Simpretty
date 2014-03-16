@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Logger;
 
@@ -89,7 +90,7 @@ public class FeedManager {
 		return contents;
 	}	
 
-	public Map<String, Long> getScore() {
+	public Set<Score> getScore() {
 		// XXX get keywords from somewhere
 		String[] keywords = {"css", "html"};
 		return db.search(keywords);
