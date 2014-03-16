@@ -2,6 +2,7 @@ package simpretty;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.jdom.Element;
@@ -13,7 +14,7 @@ public class EntryParser {
 	private static final Logger log = Logger.getLogger(SimprettyServlet.class.getName());
 
 	private SyndEntry entry;
-	private HashMap<String, String> contents = new HashMap<String, String>();
+	private Map<String, String> contents = new HashMap<String, String>();
 
 	public EntryParser(SyndEntry entry) {
 		this.entry = entry;
@@ -52,7 +53,7 @@ public class EntryParser {
 		}
 	}
 	
-	public HashMap<String, String> getContents() {
+	public Map<String, String> getContents() {
 		return contents;
 	}
 }

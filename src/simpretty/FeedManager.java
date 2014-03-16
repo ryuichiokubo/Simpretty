@@ -1,8 +1,9 @@
 package simpretty;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Logger;
 
@@ -17,7 +18,7 @@ public class FeedManager {
 	private final String[] urls;
 	private final FeedDatabase db;
 
-	private List<HashMap<String, String>> articles = new ArrayList<>();
+	private List<Map<String, String>> articles = new ArrayList<>();
 	private List<SyndFeed> feeds = new ArrayList<>();
 
 	public FeedManager(String[] urls) {
@@ -29,7 +30,7 @@ public class FeedManager {
 		db.save(articles);
 	}
 	
-	public List<HashMap<String, String>> asList() {
+	public List<Map<String, String>> asList() {
 		 // XXX or fetch as another method to be called from caller
 		if (feeds.isEmpty()) {
 			fetchAll();
@@ -75,8 +76,8 @@ public class FeedManager {
 		}
 	}
 	
-	private List<HashMap<String, String>> parseFeed(SyndFeed feed) {
-		List<HashMap<String, String>> contents 	= new ArrayList<HashMap<String, String>>();
+	private List<Map<String, String>> parseFeed(SyndFeed feed) {
+		List<Map<String, String>> contents 	= new ArrayList<Map<String, String>>();
 		
 		for (Object obj : feed.getEntries()) {
 			SyndEntry entry = (SyndEntry) obj;
@@ -87,4 +88,11 @@ public class FeedManager {
 		
 		return contents;
 	}	
+
+	public Map<String, Long> getScore() {
+		// XXX get keywords from somewhere
+		String[] keywords = {"css", "html"};
+		return db.search(keywords);
+	}
+	
 }

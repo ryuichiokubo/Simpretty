@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -24,7 +25,7 @@ public class SimprettyServlet extends HttpServlet {
 		"http://www.sitepoint.com/feed/"
 	};
 	
-	private void sendResponse(List<HashMap<String, String>>articles, HttpServletResponse resp) throws IOException {		
+	private void sendResponse(List<Map<String, String>>articles, HttpServletResponse resp) throws IOException {		
 		Gson gson = new Gson();
 		String json = gson.toJson(articles);
 			    
@@ -33,9 +34,9 @@ public class SimprettyServlet extends HttpServlet {
 		resp.getWriter().write(json);
 	}
 	
-	private void sortArticles(List<HashMap<String, String>>articles) {
-		Collections.sort(articles, new Comparator<HashMap<String, String>>() {
-			public int compare(HashMap<String, String> article1, HashMap<String, String> article2) {
+	private void sortArticles(List<Map<String, String>>articles) {
+		Collections.sort(articles, new Comparator<Map<String, String>>() {
+			public int compare(Map<String, String> article1, Map<String, String> article2) {
 				int res = 0;
 				if (article1.get("time") != null && article2.get("time") != null) {
 					long time1 = Long.parseLong(article1.get("time"));
@@ -52,11 +53,16 @@ public class SimprettyServlet extends HttpServlet {
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		List<HashMap<String, String>> articles = new ArrayList<>();
+		List<Map<String, String>> articles = new ArrayList<>();
 		FeedManager manager = new FeedManager(SOURCES);
 
 		articles = manager.asList();
 		sortArticles(articles);
+		
+		// XXX move to another place
+		Map<String, Long> score = manager.getScore();
+		log.info("@@@ score: " + score);
+		
 		sendResponse(articles, resp);
 	}
 }

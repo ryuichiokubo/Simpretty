@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -22,13 +24,15 @@ public class FeedDatabase {
 
 	private static final String name = "articles";
 	
-	public void save(List<HashMap<String, String>> articles) {
+	private Index index;
+	
+	public void save(List<Map<String, String>> articles) {
 
 		IndexSpec indexSpec = IndexSpec.newBuilder().setName(name).build();
-		Index index = SearchServiceFactory.getSearchService().getIndex(indexSpec);
+		index = SearchServiceFactory.getSearchService().getIndex(indexSpec);
 
 		ArrayList<Document> docs = new ArrayList<Document>();
-		for (HashMap<String, String> article : articles) {
+		for (Map<String, String> article : articles) {
 			String uri = article.get("uri"); // XXX or create hash or use link
 			String title = article.get("title");
 			String link = article.get("link");
@@ -44,14 +48,28 @@ public class FeedDatabase {
 			docs.add(doc);
 		}
 		
-		
 		index.put(docs); // XXX putAsync
-		
-		String queryString = "title: CSS";
-		Results<ScoredDocument> results = index.search(queryString);
-		for (ScoredDocument document : results) {
-			log.info("@@@@ document: " + document.toString());
+	}
+	
+	public Map<String, Long> search(String[] keywords) {
+		Map<String, Long> score = new HashMap<String, Long>();
+
+		for (int i = 0; i < keywords.length; i++) {
+			String queryString = "title: " + keywords[i];
+			Results<ScoredDocument> results = index.search(queryString);
+			long found = results.getNumberFound();
+			
+			log.info("@@@ num: " + found);
+			
+			// XXX debug
+			for (ScoredDocument document : results) {
+				log.info("@@@@ document: " + document.toString());
+			}
+			
+			score.put(keywords[i], found);
 		}
+		
+		return score;
 	}
 
 }
